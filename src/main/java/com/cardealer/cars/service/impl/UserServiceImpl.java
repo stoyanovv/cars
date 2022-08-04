@@ -82,23 +82,23 @@ public class UserServiceImpl implements UserService {
         confirmationTokenService.saveConfirmationToken(confirmationToken);
         String link = "http://localhost:3000/confirm/" + emailToken;
 //        emailService.send(userDetails.getEmail(), buildEmail((userDetails.getName() + " " + userDetails.getLastName()), link));
-        TimerTask task = new TimerTask() {
-            public void run() {
-                if (!userDetails.isEmailConfirmed()) {
-                    Set<UserRole> userRoles1 = user.getRoles();
-                    user.setRoles(null);
-                    userRepository.save(user);
-                    for (UserRole role : userRoles1) {
-                        userRoleService.delete(role);
-                    }
-                    confirmationTokenService.delete(confirmationToken);
-                    userDetailsService.delete(userDetails);
-                    userRepository.delete(user);
-                }
-            }
-        };
-        Timer timer = new Timer();
-        timer.schedule(task, 900000);
+//        TimerTask task = new TimerTask() {
+//            public void run() {
+//                if (!userDetails.isEmailConfirmed()) {
+//                    Set<UserRole> userRoles1 = user.getRoles();
+//                    user.setRoles(null);
+//                    userRepository.save(user);
+//                    for (UserRole role : userRoles1) {
+//                        userRoleService.delete(role);
+//                    }
+//                    confirmationTokenService.delete(confirmationToken);
+//                    userDetailsService.delete(userDetails);
+//                    userRepository.delete(user);
+//                }
+//            }
+//        };
+//        Timer timer = new Timer();
+//        timer.schedule(task, 900000);
     }
 
     @Override

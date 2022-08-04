@@ -32,7 +32,7 @@ public class CityServiceImpl implements CityService {
             cityRepository.save(new City("Shumen"));
             cityRepository.save(new City("Sofia"));
             cityRepository.save(new City("Varna"));
-            cityRepository.save(new City("Bugras"));
+            cityRepository.save(new City("Burgas"));
         }
     }
 }
