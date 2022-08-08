@@ -166,6 +166,14 @@ public class UserServiceImpl implements UserService {
         return outputJson;
     }
 
+    @Override
+    public boolean updatePictureUrl(Long id, String pictureUrl) {
+        final UserDetails userDetails = userDetailsService.getById(id);
+        userDetails.setPictureUrl(pictureUrl);
+        userDetailsService.save(userDetails);
+        return true;
+    }
+
     private String buildEmail(String name, String link) {
         return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
                 "\n" +

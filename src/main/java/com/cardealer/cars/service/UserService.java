@@ -6,8 +6,6 @@ import com.cardealer.cars.model.service.UserLoginServiceModel;
 import com.cardealer.cars.model.service.UserRegisterServiceModel;
 import com.cardealer.cars.model.view.profile.MyProfileView;
 
-import java.util.Optional;
-
 public interface UserService {
 
     void register(UserRegisterServiceModel userRegisterServiceModel);
@@ -22,4 +20,6 @@ public interface UserService {
     void save(User user);
 
     OutputJson confirmToken(String token);
+
+    boolean updatePictureUrl(Long id, String pictureUrl);
 }

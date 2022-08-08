@@ -12,9 +12,18 @@ import com.cardealer.cars.util.ValidationUtil;
 import com.google.gson.Gson;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.*;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.Set;
 
 @RestController
@@ -28,11 +37,7 @@ public class UserController {
     private final ValidationUtil validationUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserService userService,
-                          ModelMapper modelMapper,
-                          Gson gson,
-                          OutputJson outputJson,
-                          UserDetailsService userDetailsService,
+    public UserController(UserService userService, ModelMapper modelMapper, Gson gson, OutputJson outputJson, UserDetailsService userDetailsService,
                           ValidationUtil validationUtil, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.modelMapper = modelMapper;
@@ -45,20 +50,24 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/register")
-    public OutputJson  register(@RequestBody String registerForm) {
+    public OutputJson register(
+        @RequestBody
+            String registerForm) {
         UserRegisterBindingModel userRegisterBindingModel = gson.fromJson(registerForm, UserRegisterBindingModel.class);
         if (validationUtil.isValid(userRegisterBindingModel)) {
-            if (!userRegisterBindingModel.getPassword().equals(userRegisterBindingModel.getConfirmPassword())) {
+            if (!userRegisterBindingModel
+                .getPassword()
+                .equals(userRegisterBindingModel.getConfirmPassword())) {
                 outputJson.setSuccess(false);
                 outputJson.setMessage("Паролите не съвпадат");
                 return outputJson;
             }
-//            else if (Period.between(userRegisterBindingModel.getBirthdate(), LocalDate.now()).getYears() < 18) {
-//                outputJson.setSuccess(false);
-//                outputJson.setMessage("Минималната възраст за регистрация е 18 години");
-//                return outputJson;
-//            }
-            else if(userDetailsService.findPlayerByEmail(userRegisterBindingModel.getEmail()) != null) {
+            //            else if (Period.between(userRegisterBindingModel.getBirthdate(), LocalDate.now()).getYears() < 18) {
+            //                outputJson.setSuccess(false);
+            //                outputJson.setMessage("Минималната възраст за регистрация е 18 години");
+            //                return outputJson;
+            //            }
+            else if (userDetailsService.findPlayerByEmail(userRegisterBindingModel.getEmail()) != null) {
                 outputJson.setSuccess(false);
                 outputJson.setMessage("Вече е регистриран играч с този имейл адрес");
                 return outputJson;
@@ -75,8 +84,9 @@ public class UserController {
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<UserRegisterBindingModel>> violations = validator.validate(userRegisterBindingModel);
         for (ConstraintViolation<UserRegisterBindingModel> violation : violations) {
-            sb.append(violation.getMessage())
-                    .append(System.lineSeparator());
+            sb
+                .append(violation.getMessage())
+                .append(System.lineSeparator());
         }
         outputJson.setSuccess(false);
         outputJson.setMessage(sb.toString());
@@ -85,35 +95,37 @@ public class UserController {
 
     @CrossOrigin
     @PostMapping("/signin")
-    public OutputJson loginConfirm(@RequestBody String loginForm) {
+    public OutputJson loginConfirm(
+        @RequestBody
+            String loginForm) {
         UserLoginBindingModel userLoginBindingModel = gson.fromJson(loginForm, UserLoginBindingModel.class);
         if (validationUtil.isValid(userLoginBindingModel)) {
-        UserLoginServiceModel userLoginServiceModel = userService
-        .findByEmailAndPassword(userLoginBindingModel.getEmail(),
-                       userLoginBindingModel.getPassword());
-        if (userLoginServiceModel == null) {
-            outputJson.setSuccess(false);
-            outputJson.setMessage("Невалиден имейл адрес или парола");
+            UserLoginServiceModel userLoginServiceModel = userService.findByEmailAndPassword(userLoginBindingModel.getEmail(),
+                                                                                             userLoginBindingModel.getPassword());
+            if (userLoginServiceModel == null) {
+                outputJson.setSuccess(false);
+                outputJson.setMessage("Невалиден имейл адрес или парола");
+                return outputJson;
+            }
+            //        if (!userDetailsService.checkEmailConfirmed(userLoginBindingModel.getEmail())) {
+            //            outputJson.setSuccess(false);
+            //            outputJson.setMessage("Трябва да потвърдите имейла си");
+            //            return outputJson;
+            //        }
+            outputJson.setSuccess(true);
+            outputJson.setMessage("Успешно се логнахте");
+            outputJson.setUserId(userLoginServiceModel.getId());
+            outputJson.setName(userLoginServiceModel.getName());
             return outputJson;
-        }
-//        if (!userDetailsService.checkEmailConfirmed(userLoginBindingModel.getEmail())) {
-//            outputJson.setSuccess(false);
-//            outputJson.setMessage("Трябва да потвърдите имейла си");
-//            return outputJson;
-//        }
-        outputJson.setSuccess(true);
-        outputJson.setMessage("Успешно се логнахте");
-        outputJson.setUserId(userLoginServiceModel.getId());
-        outputJson.setName(userLoginServiceModel.getName());
-        return outputJson;
         }
         StringBuilder sb = new StringBuilder();
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<UserLoginBindingModel>> violations = validator.validate(userLoginBindingModel);
         for (ConstraintViolation<UserLoginBindingModel> violation : violations) {
-            sb.append(violation.getMessage())
-                    .append(System.lineSeparator());
+            sb
+                .append(violation.getMessage())
+                .append(System.lineSeparator());
         }
         outputJson.setSuccess(false);
         outputJson.setMessage(sb.toString());
@@ -122,7 +134,9 @@ public class UserController {
 
     @CrossOrigin
     @GetMapping("/myprofile/{id}")
-    public OutputJson myProfile(@PathVariable Long id) {
+    public OutputJson myProfile(
+        @PathVariable
+            Long id) {
         OutputJson outputJson = new OutputJson();
         MyProfileView myProfileByPlayerDetailsId = userService.getMyProfile(id);
         if (myProfileByPlayerDetailsId == null) {
@@ -142,8 +156,21 @@ public class UserController {
 
     @CrossOrigin
     @GetMapping("/confirm")
-    public OutputJson confirm(@RequestParam("token") String token) {
+    public OutputJson confirm(
+        @RequestParam("token")
+            String token) {
         return userService.confirmToken(token);
+    }
+
+    @CrossOrigin
+    @PostMapping("/updatePictureUrl/{id}")
+    public boolean confirm(
+        @PathVariable
+            Long id,
+        @RequestBody
+            String pictureUrl) {
+        String pictureUrlString = gson.fromJson(pictureUrl, String.class);
+        return userService.updatePictureUrl(id, pictureUrlString);
     }
 
 }

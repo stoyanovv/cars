@@ -10,6 +10,7 @@ public class MyProfileView {
     private String email;
     private String phoneNumber;
     private int age;
+    private String pictureUrl;
 
     public MyProfileView() {
     }
@@ -54,4 +55,11 @@ public class MyProfileView {
         this.age = age;
     }
 
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public void setPictureUrl(String picUrl) {
+        this.pictureUrl = picUrl;
+    }
 }
